@@ -1,5 +1,5 @@
 /* Offline cache for the app shell.  Bump CACHE when files change. */
-const CACHE = 'logger-v2';
+const CACHE = 'logger-v3';
 const FILES = ['./', 'index.html', 'core.js', 'app.js', 'manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {

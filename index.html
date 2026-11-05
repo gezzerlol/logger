@@ -69,6 +69,8 @@ canvas { display: block; width: 100%; touch-action: pan-y; }
 .cl.t { color: var(--c-temp); } .cl.h { color: var(--c-hum); } .cl.p { color: var(--c-press); } .cl.b { color: var(--c-batt); }
 .readout { font-size: 13px; color: var(--muted); min-height: 20px; margin-top: 8px; font-variant-numeric: tabular-nums; }
 .empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 20px; z-index: 2; }
+#charts.none .cl, #charts.none canvas { display: none; }
+#charts.none .empty { position: static; padding: 36px 12px; }
 .note { color: var(--muted); font-size: 12px; margin-top: 6px; }
 details summary { cursor: pointer; font-weight: 600; padding: 2px 0; }
 .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
@@ -76,8 +78,8 @@ details summary { cursor: pointer; font-weight: 600; padding: 2px 0; }
 .tools .attn { border-color: var(--warn); color: var(--warn); font-weight: 600; }
 .tools .danger { color: var(--warn); }
 pre#log { margin: 10px 0 0; max-height: 180px; overflow: auto; font: 11.5px/1.45 ui-monospace, Menlo, Consolas, monospace; color: var(--muted); white-space: pre-wrap; }
-.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: #1b2733; color: #fff; padding: 10px 16px;
-  border-radius: 12px; font-size: 14px; opacity: 0; pointer-events: none; transition: all .2s; max-width: 90vw; z-index: 20; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: var(--ink); color: var(--bg); border: 1px solid var(--line); box-shadow: 0 8px 24px rgba(0,0,0,.3); font-weight: 500; padding: 10px 16px;
+  border-radius: 12px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; max-width: 90vw; z-index: 20; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 dialog { border: 1px solid var(--line); border-radius: 18px; background: var(--card); color: var(--ink); padding: 0; width: min(94vw, 460px); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
 dialog::backdrop { background: rgba(8,14,20,.55); }

@@ -527,10 +527,10 @@ function drawChart(cfg, view, last) {
 function renderCharts() {
   const view = computeView();
   state.view = view;
-  CHARTS.forEach((c, i) => drawChart(c, view, i === CHARTS.length - 1));
   const none = !view;
   $('chartsEmpty').hidden = !none;
-  $('charts').classList.toggle('dim', none);
+  $('charts').classList.toggle('none', none);       // no data: show only the message, not the empty chart frames
+  if (!none) CHARTS.forEach((c, i) => drawChart(c, view, i === CHARTS.length - 1));
   if (view) {
     const f = (t) => new Date(t * 1000).toLocaleString([], { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hour12: false });
     $('rangeInfo').textContent = f(view.lo) + ' → ' + f(view.hi) + (view.bucket ? ' · ' + Math.round(view.bucket / 60) + ' min buckets' : '');
