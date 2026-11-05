@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b7285">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b7285'/%3E%3Cpath d='M12 42l10-12 8 8 10-16 12 14' fill='none' stroke='white' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<title>Climate Logger</title>
+<style>
+:root {
+  --bg: #f4f6f8; --card: #ffffff; --ink: #14202b; --muted: #6b7885; --line: #e3e8ee; --grid: #eef1f4;
+  --accent: #0b7285; --accent-ink: #ffffff; --warn: #c2410c;
+  --c-temp: #e8590c; --c-hum: #1c7ed6; --c-press: #2f9e44; --c-batt: #9c36b5; --usb: #f59f00;
+  --shadow: 0 1px 2px rgba(16,24,40,.06), 0 4px 14px rgba(16,24,40,.05);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e141a; --card: #17202a; --ink: #e8eef4; --muted: #8a99a8; --line: #26323f; --grid: #202b36;
+    --accent: #22b8cf; --accent-ink: #062a30; --warn: #ff922b;
+    --c-temp: #ff922b; --c-hum: #4dabf7; --c-press: #69db7c; --c-batt: #da77f2; --usb: #ffd43b;
+    --shadow: none;
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+[hidden] { display: none !important; }
+html { background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  padding: env(safe-area-inset-top) max(16px, env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+main { max-width: 760px; margin: 0 auto; }
+header { display: flex; align-items: baseline; justify-content: space-between; padding: 18px 0 10px; }
+h1 { font-size: 22px; font-weight: 650; letter-spacing: -.01em; margin: 0; }
+.sub { color: var(--muted); font-size: 12.5px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+.chips { display: flex; gap: 8px; overflow-x: auto; padding: 2px 0 10px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 7px 14px; white-space: nowrap; box-shadow: var(--shadow); }
+.chip.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 14px; }
+.hero h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.hero .meta { color: var(--muted); font-size: 13px; margin-top: 2px; }
+.nums { display: grid; grid-template-columns: 1.25fr 1fr 1fr 1fr; gap: 6px; margin: 14px 0 4px; align-items: end; }
+.num b { display: block; font-size: 38px; line-height: 1; font-weight: 300; letter-spacing: -.03em; }
+.num.s b { font-size: 26px; font-weight: 350; padding-bottom: 2px; }
+.num span { color: var(--muted); font-size: 12px; }
+.num.t b { color: var(--c-temp); } .num.h b { color: var(--c-hum); } .num.p b { color: var(--c-press); } .num.b b { color: var(--c-batt); }
+.at { color: var(--muted); font-size: 12px; min-height: 16px; }
+.actions { display: flex; gap: 8px; margin-top: 14px; }
+.primary { flex: 1; background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 12px; padding: 13px; font-weight: 650; font-size: 16px; }
+.primary:disabled { opacity: .6; }
+.secondary { border: 1px solid var(--line); background: transparent; border-radius: 12px; padding: 13px 14px; }
+.secondary:disabled { opacity: .5; }
+.progress { height: 4px; background: var(--line); border-radius: 4px; margin-top: 10px; overflow: hidden; }
+.progress div { height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+.sleep { display: flex; align-items: center; gap: 8px; margin-top: 10px; color: var(--muted); font-size: 13px; }
+.warn { background: color-mix(in srgb, var(--warn) 12%, var(--card)); border-color: color-mix(in srgb, var(--warn) 40%, var(--line)); font-size: 13.5px; }
+.bar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+.seg { display: inline-flex; background: var(--bg); border-radius: 10px; padding: 3px; }
+.seg button { border: 0; background: transparent; padding: 6px 10px; border-radius: 8px; font-size: 13px; color: var(--muted); }
+.seg button.on { background: var(--card); color: var(--ink); font-weight: 600; box-shadow: var(--shadow); }
+.nav button { border: 1px solid var(--line); background: transparent; border-radius: 8px; padding: 5px 10px; font-size: 13px; }
+.range-info { color: var(--muted); font-size: 12px; margin: 0 0 6px; min-height: 16px; }
+#charts { position: relative; }
+#charts.dim canvas { opacity: .25; }
+canvas { display: block; width: 100%; touch-action: pan-y; }
+#cTemp, #cHum, #cPress { height: 128px; } #cBatt { height: 118px; }
+.cl { font-size: 11.5px; font-weight: 600; letter-spacing: .02em; margin: 8px 0 -2px 46px; }
+.cl.t { color: var(--c-temp); } .cl.h { color: var(--c-hum); } .cl.p { color: var(--c-press); } .cl.b { color: var(--c-batt); }
+.readout { font-size: 13px; color: var(--muted); min-height: 20px; margin-top: 8px; font-variant-numeric: tabular-nums; }
+.empty { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 20px; z-index: 2; }
+.note { color: var(--muted); font-size: 12px; margin-top: 6px; }
+details summary { cursor: pointer; font-weight: 600; padding: 2px 0; }
+.tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.tools button, .tools label.btn { border: 1px solid var(--line); background: transparent; border-radius: 10px; padding: 11px; text-align: center; font-size: 14px; display: block; }
+.tools .attn { border-color: var(--warn); color: var(--warn); font-weight: 600; }
+.tools .danger { color: var(--warn); }
+pre#log { margin: 10px 0 0; max-height: 180px; overflow: auto; font: 11.5px/1.45 ui-monospace, Menlo, Consolas, monospace; color: var(--muted); white-space: pre-wrap; }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translate(-50%, 20px); background: #1b2733; color: #fff; padding: 10px 16px;
+  border-radius: 12px; font-size: 14px; opacity: 0; pointer-events: none; transition: all .2s; max-width: 90vw; z-index: 20; }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+dialog { border: 1px solid var(--line); border-radius: 18px; background: var(--card); color: var(--ink); padding: 0; width: min(94vw, 460px); box-shadow: 0 20px 60px rgba(0,0,0,.35); }
+dialog::backdrop { background: rgba(8,14,20,.55); }
+dialog form { padding: 18px; }
+dialog h3 { margin: 0 0 2px; font-size: 18px; }
+.f { display: grid; grid-template-columns: 1fr 130px; gap: 6px 10px; align-items: center; margin-top: 10px; }
+.f label { font-size: 14px; } .f small { display: block; color: var(--muted); font-size: 11.5px; }
+.f input, .f select { width: 100%; font: inherit; padding: 8px 10px; border-radius: 9px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); }
+.hr { height: 1px; background: var(--line); margin: 14px 0 4px; grid-column: 1 / -1; }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.dlg-actions button { border-radius: 10px; padding: 10px 18px; border: 1px solid var(--line); background: transparent; }
+.dlg-actions .go { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 650; }
+.danger-row { display: flex; gap: 8px; align-items: center; margin-top: 14px; color: var(--warn); font-size: 13.5px; }
+@media (max-width: 380px) { .num b { font-size: 32px; } .num.s b { font-size: 22px; } }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Climate Logger</h1>
+  </header>
+
+  <div class="chips" id="chips"></div>
+
+  <section class="card warn" id="noBle" hidden>
+    Web Bluetooth is not available in this browser. On iPhone open this page in the <b>Bluefy</b> browser;
+    on Android or a computer use Chrome or Edge.
+  </section>
+
+  <section class="card hero">
+    <h2 id="devName">No logger yet</h2>
+    <div class="meta" id="devMeta"></div>
+    <div class="nums">
+      <div class="num t"><b id="hT">&ndash;</b><span>&deg;C</span></div>
+      <div class="num s h"><b id="hH">&ndash;</b><span>% RH</span></div>
+      <div class="num s p"><b id="hP">&ndash;</b><span>hPa</span></div>
+      <div class="num s b"><b id="hB">&ndash;</b><span>battery V</span></div>
+    </div>
+    <div class="at" id="hTime"></div>
+    <div class="actions">
+      <button class="primary" id="sync">Sync</button>
+      <button class="secondary" id="pick">Add logger</button>
+    </div>
+    <div class="progress" id="progress" hidden><div id="bar"></div></div>
+    <label class="sleep"><input type="checkbox" id="sleepAfter" checked> Put logger to sleep after sync</label>
+  </section>
+
+  <section class="card">
+    <div class="bar">
+      <div class="seg" id="ranges"></div>
+      <span class="nav"><button id="prev" aria-label="Earlier">&#9664;</button> <button id="next" aria-label="Later">&#9654;</button> <button id="latest">Latest</button></span>
+    </div>
+    <p class="range-info" id="rangeInfo"></p>
+    <div id="charts">
+      <div class="empty" id="chartsEmpty" hidden>No data yet.<br>Press the logger&rsquo;s wake button and tap Sync.</div>
+      <div class="cl t">TEMPERATURE &deg;C</div><canvas id="cTemp"></canvas>
+      <div class="cl h">HUMIDITY %</div><canvas id="cHum"></canvas>
+      <div class="cl p">PRESSURE hPa</div><canvas id="cPress"></canvas>
+      <div class="cl b">BATTERY V</div><canvas id="cBatt"></canvas>
+    </div>
+    <div class="readout" id="readout"></div>
+    <div class="note" id="estNote" hidden>&asymp; Some sessions have estimated start times (the logger was powered off before it was first synced).</div>
+    <div class="note">Long ranges show the average with a min&ndash;max band. Orange ticks on the temperature chart mark readings taken on USB power.</div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Tools &amp; data</summary>
+      <div class="tools">
+        <button id="toolSettings">Logger settings</button>
+        <button id="toolCsv">Export CSV</button>
+        <button id="backupBtn">Back up data</button>
+        <label class="btn">Restore backup<input type="file" id="restoreFile" accept=".json,.gz,application/json,application/gzip" hidden></label>
+        <button id="toolRemove" class="danger">Remove this logger&rsquo;s data</button>
+      </div>
+      <p class="note" id="backupInfo"></p>
+      <p class="note" id="persist"></p>
+      <p class="note">The logger itself keeps months of history, so a re-sync restores anything lost here. Backups cover data it has already overwritten.</p>
+      <pre id="log"></pre>
+    </details>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<dialog id="settingsDlg">
+  <form method="dialog" onsubmit="return false">
+    <h3>Logger settings</h3>
+    <div class="sub" id="sInfo"></div>
+    <div class="f">
+      <label for="sName">Name<small>1&ndash;12 characters</small></label><input id="sName" maxlength="12" autocomplete="off">
+      <label for="sInterval">Sample interval<small>seconds, 10&ndash;7200</small></label><input id="sInterval" type="number" inputmode="numeric">
+      <label for="sWindow">BLE window<small>seconds after wake button</small></label><input id="sWindow" type="number" inputmode="numeric">
+      <label for="sToff">Temperature offset<small>&deg;C, corrects self-heating</small></label><input id="sToff" type="number" step="0.05" inputmode="decimal">
+      <label for="sCutoff">Low-battery cut-off<small>mV, 0 = off</small></label><input id="sCutoff" type="number" inputmode="numeric">
+      <label for="sBcal">Battery calibration<small>&permil;, 800&ndash;1200</small></label><input id="sBcal" type="number" inputmode="numeric">
+      <div class="hr"></div>
+      <label for="sGuer">Guerrilla mode<small>wakes often so you can connect without a button; costs battery</small></label><select id="sGuer"></select>
+      <label for="sGper">Guerrilla period<small>seconds</small></label><input id="sGper" type="number" inputmode="numeric">
+      <label for="sGburst">Guerrilla burst<small>ms awake per wake</small></label><input id="sGburst" type="number" inputmode="numeric">
+    </div>
+    <label class="danger-row"><input type="checkbox" id="sErase"> Erase the log on the logger (cannot be undone)</label>
+    <div class="dlg-actions">
+      <button type="button" id="sCancel">Cancel</button>
+      <button type="button" class="go" id="sApply">Apply</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
