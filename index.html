@@ -169,7 +169,7 @@ dialog h3 { margin: 0 0 2px; font-size: 18px; }
     <div class="sub" id="sInfo"></div>
     <div class="f">
       <label for="sName">Name<small>1&ndash;12 characters</small></label><input id="sName" maxlength="12" autocomplete="off">
-      <label for="sInterval">Sample interval<small>seconds, 10&ndash;7200</small></label><input id="sInterval" type="number" inputmode="numeric">
+      <label for="sInterval">Sample interval<small>seconds, 0.1&ndash;7200 (under 5 s the logger never sleeps: test mode)</small></label><input id="sInterval" type="number" inputmode="decimal" step="any">
       <label for="sWindow">BLE window<small>seconds after wake button</small></label><input id="sWindow" type="number" inputmode="numeric">
       <label for="sToff">Temperature offset<small>&deg;C, corrects self-heating</small></label><input id="sToff" type="number" step="0.05" inputmode="decimal">
       <label for="sCutoff">Low-battery cut-off<small>mV, 0 = off</small></label><input id="sCutoff" type="number" inputmode="numeric">

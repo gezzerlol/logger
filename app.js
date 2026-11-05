@@ -344,7 +344,7 @@ async function applySettings() {
       if (!/^[\x20-\x7e]{1,12}$/.test(name)) throw new Error('Name must be 1–12 plain ASCII characters');
       cmds.push(Uint8Array.from([OP.SET_NAME, ...Array.from(name).map((c) => c.charCodeAt(0))]));
     }
-    const iv = num('sInterval', 10, 7200, 'Interval'); if (iv !== st.interval) cfg(CFG.INTERVAL, iv);
+    const iv = num('sInterval', 0.1, 7200, 'Interval'); if (Math.abs(iv - st.interval) > 1e-6) cfg(CFG.INTERVAL_MS, Math.round(iv * 1000));
     const wi = num('sWindow', 20, 900, 'Window'); if (wi !== st.window) cfg(CFG.WINDOW, wi);
     const to = Math.round(num('sToff', -50, 50, 'Temperature offset') * 100); if (to !== st.temp_off) cfg(CFG.TEMPOFF, to & 0xFFFF);
     const co = Number($('sCutoff').value); if (co !== 0 && !(co >= 2800 && co <= 3800)) throw new Error('Cut-off must be 0 or 2800–3800');

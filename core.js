@@ -7,7 +7,7 @@
   const CHR_DATA = '7a1c0003-5b6e-4d23-9a0f-3d8b2e6c1f00';
   const CHR_STAT = '7a1c0004-5b6e-4d23-9a0f-3d8b2e6c1f00';
   const OP = { READ: 2, SET_CFG: 3, SET_NAME: 4, GUERRILLA: 5, ERASE: 6, KEEPALIVE: 7, SLEEP: 8, ABORT: 9, CREDIT: 10 };
-  const CFG = { INTERVAL: 1, WINDOW: 2, TEMPOFF: 3, CUTOFF: 4, BATTCAL: 5, GPERIOD: 6, GBURST: 7 };
+  const CFG = { INTERVAL_MS: 8, INTERVAL: 1, WINDOW: 2, TEMPOFF: 3, CUTOFF: 4, BATTCAL: 5, GPERIOD: 6, GBURST: 7 };
   const PK = { DATA: 1, HDR: 2, DONE: 3, ACK: 4 };
   const STAT_LEN = 70;
 
@@ -24,7 +24,7 @@
     for (let i = 64; i < 70; i++) id += u8(i).toString(16).padStart(2, '0').toUpperCase();
     return {
       proto: u8(0), fw: u8(1), session: u16(2), uptime: u32(4), oldest: u32(8), next: u32(12),
-      interval: u16(16), batt_mv: u16(18), window: u16(20), cutoff: u16(22), batt_cal: u16(24),
+      interval: dv.byteLength >= 76 ? u32(72) / 1000 : u16(16), batt_mv: u16(18), window: u16(20), cutoff: u16(22), batt_cal: u16(24),
       temp_off: dv.getInt16(26, true),
       usb: !!(flags & 1), full: !!(flags & 2), guerrilla: !!(flags & 4), cutoff_active: !!(flags & 8), fault: !!(flags & 16),
       g_period: u8(29), g_burst: u16(30), g_duration: u32(32), g_remaining: u32(36),
